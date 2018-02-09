@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/kujtimiihoxha/kit/cmd"
-	"github.com/kujtimiihoxha/kit/utils"
+	"github.com/hms58/genkit/cmd"
+	"github.com/hms58/genkit/utils"
 	"github.com/spf13/afero"
 	"github.com/spf13/viper"
 )

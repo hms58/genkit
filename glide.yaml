@@ -17,9 +17,24 @@ import:
   version: ^1.6.3
 - package: github.com/dave/jennifer
   version: ^0.14.0
-- package: golang.org/x/tools
-  subpackages:
-  - imports
 - package: github.com/emicklei/proto
 - package: github.com/go-yaml/yaml
 - package: github.com/emicklei/proto-contrib
+- package: golang.org/x/tools
+  repo: https://github.com/golang/tools
+  vcs: git
+  subpackages:
+  - imports
+- package: golang.org/x/crypto
+  repo: https://github.com/golang/crypto.git
+  subpackages:
+  - ssh/terminal
+- package: golang.org/x/sys
+  repo: https://github.com/golang/sys.git
+  subpackages:
+  - unix
+- package: golang.org/x/text
+  repo: https://github.com/golang/text.git
+  subpackages:
+  - transform
+  - unicode/norm

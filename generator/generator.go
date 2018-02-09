@@ -15,9 +15,9 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/dave/jennifer/jen"
-	"github.com/kujtimiihoxha/kit/fs"
-	"github.com/kujtimiihoxha/kit/parser"
-	"github.com/kujtimiihoxha/kit/utils"
+	"github.com/hms58/genkit/fs"
+	"github.com/hms58/genkit/parser"
+	"github.com/hms58/genkit/utils"
 )
 
 // Gen represents a generator.

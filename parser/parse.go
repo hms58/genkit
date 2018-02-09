@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/kujtimiihoxha/kit/utils"
+	"github.com/hms58/genkit/utils"
 )
 
 // FileParser is the parser used by kit to parse go files.
