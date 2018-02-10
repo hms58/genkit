@@ -41,6 +41,11 @@ func ToLowerSnakeCase(s string) string {
 	return strings.ToLower(godash.ToSnakeCase(s))
 }
 
+// ToLowerSnakeCase the given string in snake-case format.
+func ToLowerSnakeCase2(s string) string {
+	return strings.ToLower(s)
+}
+
 // ToCamelCase the given string in camelcase format.
 func ToCamelCase(s string) string {
 	return godash.ToCamelCase(s)
@@ -66,7 +71,7 @@ func GetServiceImportPath(name string) (string, error) {
 	}
 	pwd = strings.Replace(pwd, "\\", "/", -1)
 	projectPath := strings.Replace(pwd, gosrc, "", 1)
-	svcPath := fmt.Sprintf(viper.GetString("gk_service_path_format"), ToLowerSnakeCase(name))
+	svcPath := fmt.Sprintf(viper.GetString("gk_service_path_format"), ToLowerSnakeCase2(name))
 
 	svcPath = strings.Replace(svcPath, "\\", "/", -1)
 	serviceImport := projectPath + "/" + svcPath
@@ -86,7 +91,7 @@ func GetCmdServiceImportPath(name string) (string, error) {
 	}
 	pwd = strings.Replace(pwd, "\\", "/", -1)
 	projectPath := strings.Replace(pwd, gosrc, "", 1)
-	svcPath := fmt.Sprintf(viper.GetString("gk_cmd_service_path_format"), ToLowerSnakeCase(name))
+	svcPath := fmt.Sprintf(viper.GetString("gk_cmd_service_path_format"), ToLowerSnakeCase2(name))
 
 	svcPath = strings.Replace(svcPath, "\\", "/", -1)
 	serviceImport := projectPath + "/" + svcPath
@@ -106,7 +111,7 @@ func GetEndpointImportPath(name string) (string, error) {
 	}
 	pwd = strings.Replace(pwd, "\\", "/", -1)
 	projectPath := strings.Replace(pwd, gosrc, "", 1)
-	epPath := fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), ToLowerSnakeCase(name))
+	epPath := fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), ToLowerSnakeCase2(name))
 
 	epPath = strings.Replace(epPath, "\\", "/", -1)
 	endpointImport := projectPath + "/" + epPath
@@ -126,7 +131,7 @@ func GetGRPCTransportImportPath(name string) (string, error) {
 	}
 	pwd = strings.Replace(pwd, "\\", "/", -1)
 	projectPath := strings.Replace(pwd, gosrc, "", 1)
-	epPath := fmt.Sprintf(viper.GetString("gk_grpc_path_format"), ToLowerSnakeCase(name))
+	epPath := fmt.Sprintf(viper.GetString("gk_grpc_path_format"), ToLowerSnakeCase2(name))
 
 	epPath = strings.Replace(epPath, "\\", "/", -1)
 	endpointImport := projectPath + "/" + epPath
@@ -146,7 +151,7 @@ func GetPbImportPath(name string) (string, error) {
 	}
 	pwd = strings.Replace(pwd, "\\", "/", -1)
 	projectPath := strings.Replace(pwd, gosrc, "", 1)
-	epPath := fmt.Sprintf(viper.GetString("gk_grpc_pb_path_format"), ToLowerSnakeCase(name))
+	epPath := fmt.Sprintf(viper.GetString("gk_grpc_pb_path_format"), ToLowerSnakeCase2(name))
 
 	epPath = strings.Replace(epPath, "\\", "/", -1)
 	endpointImport := projectPath + "/" + epPath
@@ -166,7 +171,7 @@ func GetHTTPTransportImportPath(name string) (string, error) {
 	}
 	pwd = strings.Replace(pwd, "\\", "/", -1)
 	projectPath := strings.Replace(pwd, gosrc, "", 1)
-	epPath := fmt.Sprintf(viper.GetString("gk_http_path_format"), ToLowerSnakeCase(name))
+	epPath := fmt.Sprintf(viper.GetString("gk_http_path_format"), ToLowerSnakeCase2(name))
 
 	epPath = strings.Replace(epPath, "\\", "/", -1)
 	httpImports := projectPath + "/" + epPath

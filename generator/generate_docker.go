@@ -72,15 +72,15 @@ func (g *GenerateDocker) Generate() (err error) {
 			continue
 		}
 		svcFilePath := path.Join(
-			fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase(v)),
+			fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(v)),
 			viper.GetString("gk_service_file_name"),
 		)
 		httpFilePath := path.Join(
-			fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase(v)),
+			fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase2(v)),
 			viper.GetString("gk_http_file_name"),
 		)
 		grpcFilePath := path.Join(
-			fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase(v)),
+			fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase2(v)),
 			viper.GetString("gk_grpc_file_name"),
 		)
 		err = g.generateDockerFile(v, svcFilePath, httpFilePath, grpcFilePath)

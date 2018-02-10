@@ -45,7 +45,7 @@ func NewGenerateTransport(name string, gorillaMux bool, transport string, method
 		name:          name,
 		gorillaMux:    gorillaMux,
 		interfaceName: utils.ToCamelCase(name + "Service"),
-		destPath:      fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:      fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(name)),
 		methods:       methods,
 	}
 	i.filePath = path.Join(i.destPath, viper.GetString("gk_service_file_name"))
@@ -197,7 +197,7 @@ func newGenerateHTTPTransport(name string, gorillaMux bool, serviceInterface par
 		name:             name,
 		methods:          methods,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 		gorillaMux:       gorillaMux,
 	}
@@ -376,10 +376,8 @@ func (g *generateHTTPTransport) Generate() (err error) {
 					},
 					"",
 					jen.Id("req").Op(":=").Qual(endpImports, m.Name+"Request").Block(),
-					jen.Comment("err = json.NewDecoder(r.Body).Decode(&req)"),
-					// jen.Err().Op(":=").Qual("encoding/json", "NewDecoder").Call(
-					// jen.Id("r").Dot("Body"),
-					// ).Dot("Decode").Call(jen.Id("&req")),
+					jen.Comment("err := json.NewDecoder(r.Body).Decode(&req)"),
+					jen.Var().Id("err").Id("error"),
 					jen.Return(jen.Id("req"), jen.Id("err")),
 				)
 			}
@@ -563,7 +561,7 @@ func newGenerateHTTPTransportBase(name string, gorillaMux bool, serviceInterface
 		gorillaMux:       gorillaMux,
 		allMethods:       allMethods,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 	}
 	t.filePath = path.Join(t.destPath, viper.GetString("gk_http_base_file_name"))
@@ -674,12 +672,12 @@ func newGenerateGRPCTransportProto(name string, serviceInterface parser.Interfac
 		name:             name,
 		methods:          methods,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_pb_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_pb_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 	}
 	t.pbFilePath = path.Join(
 		t.destPath,
-		fmt.Sprintf(viper.GetString("gk_grpc_pb_file_name"), utils.ToLowerSnakeCase(name)),
+		fmt.Sprintf(viper.GetString("gk_grpc_pb_file_name"), utils.ToLowerSnakeCase2(name)),
 	)
 	t.compileFilePath = path.Join(t.destPath, viper.GetString("gk_grpc_compile_file_name"))
 	t.fs = fs.Get()
@@ -897,7 +895,7 @@ func newGenerateGRPCTransportBase(name string, serviceInterface parser.Interface
 		methods:          methods,
 		allMethods:       allMethods,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 	}
 	t.filePath = path.Join(t.destPath, viper.GetString("gk_grpc_base_file_name"))
@@ -1000,7 +998,7 @@ func newGenerateGRPCTransport(name string, serviceInterface parser.Interface, me
 		name:             name,
 		methods:          methods,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 	}
 	t.filePath = path.Join(t.destPath, viper.GetString("gk_grpc_file_name"))

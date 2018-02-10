@@ -37,7 +37,7 @@ func NewGenerateService(name, transport string, sMiddleware, gorillaMux, eMiddle
 	i := &GenerateService{
 		name:          name,
 		interfaceName: utils.ToCamelCase(name + "Service"),
-		destPath:      fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:      fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(name)),
 		sMiddleware:   sMiddleware,
 		eMiddleware:   eMiddleware,
 		gorillaMux:    gorillaMux,
@@ -286,7 +286,7 @@ func newGenerateServiceMiddleware(name string, serviceFile *parser.File,
 	gsm := &generateServiceMiddleware{
 		name:             name,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 		serviceFile:      serviceFile,
 	}
@@ -500,7 +500,7 @@ func newGenerateServiceEndpoints(name string, imports []parser.NamedTypeValue,
 	gsm := &generateServiceEndpoints{
 		name:             name,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 		serviceImports:   imports,
 	}
@@ -896,7 +896,7 @@ func newGenerateServiceEndpointsBase(name string, serviceInterface parser.Interf
 	gsm := &generateServiceEndpointsBase{
 		name:             name,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 	}
 	gsm.filePath = path.Join(gsm.destPath, viper.GetString("gk_endpoint_base_file_name"))
@@ -981,7 +981,7 @@ func newGenerateEndpointMiddleware(name string) Gen {
 	gsm := &generateEndpointMiddleware{
 		name:          name,
 		interfaceName: utils.ToCamelCase(name + "Service"),
-		destPath:      fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:      fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase2(name)),
 	}
 	gsm.filePath = path.Join(gsm.destPath, viper.GetString("gk_endpoint_middleware_file_name"))
 	gsm.srcFile = jen.NewFilePath(gsm.destPath)
@@ -1185,11 +1185,11 @@ func newGenerateCmdBase(name string, serviceInterface parser.Interface,
 	t := &generateCmdBase{
 		name:                               name,
 		methods:                            methods,
-		destPath:                           fmt.Sprintf(viper.GetString("gk_cmd_service_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:                           fmt.Sprintf(viper.GetString("gk_cmd_service_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface:                   serviceInterface,
 		generateSvcDefaultsMiddleware:      generateSacDefaultsMiddleware,
-		httpDestPath:                       fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase(name)),
-		grpcDestPath:                       fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase(name)),
+		httpDestPath:                       fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase2(name)),
+		grpcDestPath:                       fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase2(name)),
 		generateEndpointDefaultsMiddleware: generateEndpointDefaultsMiddleware,
 	}
 	t.filePath = path.Join(t.destPath, viper.GetString("gk_cmd_base_file_name"))
@@ -1491,9 +1491,9 @@ func newGenerateCmd(name string, serviceInterface parser.Interface,
 		name:                               name,
 		methods:                            methods,
 		interfaceName:                      utils.ToCamelCase(name + "Service"),
-		destPath:                           fmt.Sprintf(viper.GetString("gk_cmd_service_path_format"), utils.ToLowerSnakeCase(name)),
-		httpDestPath:                       fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase(name)),
-		grpcDestPath:                       fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:                           fmt.Sprintf(viper.GetString("gk_cmd_service_path_format"), utils.ToLowerSnakeCase2(name)),
+		httpDestPath:                       fmt.Sprintf(viper.GetString("gk_http_path_format"), utils.ToLowerSnakeCase2(name)),
+		grpcDestPath:                       fmt.Sprintf(viper.GetString("gk_grpc_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface:                   serviceInterface,
 		generateSvcDefaultsMiddleware:      generateSacDefaultsMiddleware,
 		generateEndpointDefaultsMiddleware: generateEndpointDefaultsMiddleware,
@@ -1699,8 +1699,8 @@ func (g *generateCmd) generateRun() (*PartialGenerator, error) {
 		).Call(
 			jen.Id("collector"),
 			jen.Lit(false),
-			jen.Lit("localhost:80"),
-			jen.Lit(g.name),
+			jen.Lit("localhost:0"),
+			jen.Lit(utils.ToCamelCase(g.name)),
 		),
 		jen.List(jen.Id("tracer"), jen.Id("err")).Op("=").Qual(
 			"github.com/openzipkin/zipkin-go-opentracing", "NewTracer",
@@ -1792,7 +1792,7 @@ func (g *generateCmd) generateVars() {
 		)
 		g.code.NewLine()
 		g.code.Raw().Var().Id("fs").Op("=").Qual("flag", "NewFlagSet").Call(
-			jen.Lit(g.name), jen.Qual("flag", "ExitOnError"),
+			jen.Lit(utils.ToCamelCase(g.name)), jen.Qual("flag", "ExitOnError"),
 		)
 		g.code.NewLine()
 		g.code.Raw().Var().Id("debugAddr").Op("=").Id("fs").Dot("String").Call(
@@ -2067,7 +2067,7 @@ func (g *generateCmd) generateGetMiddleware() (err error) {
 						jen.Id("Help"):      jen.Lit("Request duration in seconds."),
 						jen.Id("Name"):      jen.Lit("request_duration_seconds"),
 						jen.Id("Namespace"): jen.Lit("example"),
-						jen.Id("Subsystem"): jen.Lit(g.name),
+						jen.Id("Subsystem"): jen.Lit(utils.ToCamelCase(g.name)),
 					},
 				),
 				jen.Index().String().Values(jen.Lit("method"), jen.Lit("success")),
@@ -2198,7 +2198,7 @@ func (g *generateCmd) generateCancelInterrupt() {
 	}
 }
 func (g *generateCmd) generateCmdMain() error {
-	mainDest := fmt.Sprintf(viper.GetString("gk_cmd_path_format"), utils.ToLowerSnakeCase(g.name))
+	mainDest := fmt.Sprintf(viper.GetString("gk_cmd_path_format"), utils.ToLowerSnakeCase2(g.name))
 	mainFilePath := path.Join(mainDest, "main.go")
 	g.CreateFolderStructure(mainDest)
 	if b, err := g.fs.Exists(mainFilePath); err != nil {

@@ -34,8 +34,8 @@ func NewGenerateClient(name string, transport string) Gen {
 	i := &GenerateClient{
 		name:            name,
 		interfaceName:   utils.ToCamelCase(name + "Service"),
-		destPath:        fmt.Sprintf(viper.GetString("gk_client_cmd_path_format"), utils.ToLowerSnakeCase(name)),
-		serviceDestPath: fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:        fmt.Sprintf(viper.GetString("gk_client_cmd_path_format"), utils.ToLowerSnakeCase2(name)),
+		serviceDestPath: fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(name)),
 		transport:       transport,
 	}
 	i.serviceFilePath = path.Join(i.serviceDestPath, viper.GetString("gk_service_file_name"))
@@ -144,7 +144,7 @@ func newGenerateHTTPClient(name string, serviceInterface parser.Interface, servi
 	i := &generateHTTPClient{
 		name:             name,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_http_client_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_http_client_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 		serviceFile:      serviceFile,
 	}
@@ -348,7 +348,7 @@ func newGenerateGRPCClient(name string, serviceInterface parser.Interface, servi
 	i := &generateGRPCClient{
 		name:             name,
 		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_client_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:         fmt.Sprintf(viper.GetString("gk_grpc_client_path_format"), utils.ToLowerSnakeCase2(name)),
 		serviceInterface: serviceInterface,
 		serviceFile:      serviceFile,
 	}

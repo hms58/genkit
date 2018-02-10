@@ -28,7 +28,7 @@ func NewNewService(name string) Gen {
 	gs := &NewService{
 		name:          name,
 		interfaceName: utils.ToCamelCase(name + "Service"),
-		destPath:      fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase(name)),
+		destPath:      fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(name)),
 	}
 	gs.filePath = path.Join(gs.destPath, viper.GetString("gk_service_file_name"))
 	gs.srcFile = jen.NewFilePath(strings.Replace(gs.destPath, "\\", "/", -1))

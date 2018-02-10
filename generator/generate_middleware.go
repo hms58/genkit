@@ -38,7 +38,7 @@ func NewGenerateMiddleware(name, serviceName string, ep bool) Gen {
 		serviceName:          serviceName,
 		isEndpointMiddleware: ep,
 		interfaceName:        utils.ToCamelCase(serviceName + "Service"),
-		destPath:             fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase(serviceName)),
+		destPath:             fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(serviceName)),
 	}
 	i.filePath = path.Join(i.destPath, viper.GetString("gk_service_file_name"))
 	i.fs = fs.Get()
@@ -65,7 +65,7 @@ func (g *GenerateMiddleware) Generate() (err error) {
 	gi := newGenerateServiceMiddleware(g.serviceName, g.file, g.serviceInterface, false)
 	g.serviceGenerator = gi.(*generateServiceMiddleware)
 	if g.isEndpointMiddleware {
-		g.destPath = fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase(g.serviceName))
+		g.destPath = fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase2(g.serviceName))
 		g.filePath = path.Join(g.destPath, viper.GetString("gk_endpoint_middleware_file_name"))
 		return g.generateEndpointMiddleware()
 	}
