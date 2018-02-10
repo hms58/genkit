@@ -39,7 +39,8 @@ func setDefaults() {
 	viper.SetDefault("gk_grpc_client_path_format", path.Join("%s", "client", "grpc"))
 	viper.SetDefault("gk_client_cmd_path_format", path.Join("%s", "cmd", "client"))
 	viper.SetDefault("gk_grpc_path_format", path.Join("%s", "pkg", "grpc"))
-	viper.SetDefault("gk_grpc_pb_path_format", path.Join("%s", "pkg", "grpc", "pb"))
+	// viper.SetDefault("gk_grpc_pb_path_format", path.Join("%s", "pkg", "grpc", "pb"))
+	viper.SetDefault("gk_grpc_pb_path_format", path.Join("%s", "pb"))
 
 	viper.SetDefault("gk_service_file_name", "service.go")
 	viper.SetDefault("gk_service_middleware_file_name", "middleware.go")

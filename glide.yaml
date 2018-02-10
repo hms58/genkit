@@ -1,4 +1,4 @@
-package: github.com/kujtimiihoxha/kit
+package: github.com/hms58/genkit
 import:
 - package: github.com/spf13/cobra
   subpackages:

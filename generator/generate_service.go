@@ -2198,7 +2198,7 @@ func (g *generateCmd) generateCancelInterrupt() {
 	}
 }
 func (g *generateCmd) generateCmdMain() error {
-	mainDest := fmt.Sprintf(viper.GetString("gk_cmd_path_format"), g.name)
+	mainDest := fmt.Sprintf(viper.GetString("gk_cmd_path_format"), utils.ToLowerSnakeCase(g.name))
 	mainFilePath := path.Join(mainDest, "main.go")
 	g.CreateFolderStructure(mainDest)
 	if b, err := g.fs.Exists(mainFilePath); err != nil {

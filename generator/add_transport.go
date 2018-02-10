@@ -18,11 +18,11 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/dave/jennifer/jen"
 	"github.com/emicklei/proto"
+	"github.com/emicklei/proto-contrib/pkg/protofmt"
 	"github.com/hms58/genkit/fs"
 	"github.com/hms58/genkit/parser"
 	"github.com/hms58/genkit/utils"
 	"github.com/spf13/viper"
-	"github.com/emicklei/proto-contrib/pkg/protofmt"
 )
 
 // GenerateTransport implement Gen, is used to generate a service transport
@@ -340,24 +340,50 @@ func (g *generateHTTPTransport) Generate() (err error) {
 				"JSON-encoded request from the HTTP request body.",
 			})
 			g.code.NewLine()
-			g.code.appendFunction(
-				fmt.Sprintf("decode%sRequest", m.Name),
-				nil,
-				[]jen.Code{
-					jen.Id("_").Qual("context", "Context"),
-					jen.Id("r").Id("*").Qual("net/http", "Request"),
-				},
-				[]jen.Code{
-					jen.Interface(),
-					jen.Error(),
-				},
-				"",
-				jen.Id("req").Op(":=").Qual(endpImports, m.Name+"Request").Block(),
-				jen.Err().Op(":=").Qual("encoding/json", "NewDecoder").Call(
-					jen.Id("r").Dot("Body"),
-				).Dot("Decode").Call(jen.Id("&req")),
-				jen.Return(jen.Id("req"), jen.Id("err")),
-			)
+
+			// POST 请求
+			if len(m.Parameters) > 1 {
+				g.code.appendFunction(
+					fmt.Sprintf("decode%sRequest", m.Name),
+					nil,
+					[]jen.Code{
+						jen.Id("_").Qual("context", "Context"),
+						jen.Id("r").Id("*").Qual("net/http", "Request"),
+					},
+					[]jen.Code{
+						jen.Interface(),
+						jen.Error(),
+					},
+					"",
+					jen.Id("req").Op(":=").Qual(endpImports, m.Name+"Request").Block(),
+					jen.Err().Op(":=").Qual("encoding/json", "NewDecoder").Call(
+						jen.Id("r").Dot("Body"),
+					).Dot("Decode").Call(jen.Id("&req")),
+					jen.Return(jen.Id("req"), jen.Id("err")),
+				)
+			} else {
+				// GET 请求
+				g.code.appendFunction(
+					fmt.Sprintf("decode%sRequest", m.Name),
+					nil,
+					[]jen.Code{
+						jen.Id("_").Qual("context", "Context"),
+						jen.Id("r").Id("*").Qual("net/http", "Request"),
+					},
+					[]jen.Code{
+						jen.Interface(),
+						jen.Error(),
+					},
+					"",
+					jen.Id("req").Op(":=").Qual(endpImports, m.Name+"Request").Block(),
+					jen.Comment("err = json.NewDecoder(r.Body).Decode(&req)"),
+					// jen.Err().Op(":=").Qual("encoding/json", "NewDecoder").Call(
+					// jen.Id("r").Dot("Body"),
+					// ).Dot("Decode").Call(jen.Id("&req")),
+					jen.Return(jen.Id("req"), jen.Id("err")),
+				)
+			}
+
 			g.code.NewLine()
 		}
 		if !encoderFound {

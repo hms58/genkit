@@ -56,7 +56,9 @@ func (f *KitFs) WriteFile(path string, data string, force bool) error {
 			return nil
 		}
 	}
-	return afero.WriteFile(f.Fs, path, []byte(data), os.ModePerm)
+	// return afero.WriteFile(f.Fs, path, []byte(data), os.ModePerm)
+	var modePerm os.FileMode = 0644
+	return afero.WriteFile(f.Fs, path, []byte(data), modePerm)
 }
 
 // Mkdir creates a directory.
