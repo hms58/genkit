@@ -49,6 +49,7 @@ func setDefaults() {
 	viper.SetDefault("gk_endpoint_middleware_file_name", "middleware.go")
 	viper.SetDefault("gk_http_file_name", "handler.go")
 	viper.SetDefault("gk_http_base_file_name", "handler_gen.go")
+	viper.SetDefault("gk_http_path_file_name", "path.go")
 	viper.SetDefault("gk_cmd_base_file_name", "service_gen.go")
 	viper.SetDefault("gk_cmd_svc_file_name", "service.go")
 	viper.SetDefault("gk_http_client_file_name", "http.go")
