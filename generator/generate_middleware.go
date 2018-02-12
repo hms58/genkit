@@ -62,11 +62,13 @@ func (g *GenerateMiddleware) Generate() (err error) {
 		return
 	}
 	g.removeBadMethods()
-	gi := newGenerateServiceMiddleware(g.serviceName, g.file, g.serviceInterface, false)
+	middlewareFile := fmt.Sprintf("%s.go", utils.ToLowerSnakeCase(g.name))
+	gi := newGenerateServiceMiddleware(g.serviceName, g.file, g.serviceInterface, false, middlewareFile)
 	g.serviceGenerator = gi.(*generateServiceMiddleware)
 	if g.isEndpointMiddleware {
 		g.destPath = fmt.Sprintf(viper.GetString("gk_endpoint_path_format"), utils.ToLowerSnakeCase2(g.serviceName))
-		g.filePath = path.Join(g.destPath, viper.GetString("gk_endpoint_middleware_file_name"))
+		// g.filePath = path.Join(g.destPath, viper.GetString("gk_endpoint_middleware_file_name"))
+		g.filePath = path.Join(g.destPath, middlewareFile)
 		return g.generateEndpointMiddleware()
 	}
 	return g.generateServiceMiddleware()

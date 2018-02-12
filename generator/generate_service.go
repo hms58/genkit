@@ -97,7 +97,7 @@ func (g *GenerateService) Generate() (err error) {
 	if err != nil {
 		return err
 	}
-	mdwG := newGenerateServiceMiddleware(g.name, g.file, g.serviceInterface, g.sMiddleware)
+	mdwG := newGenerateServiceMiddleware(g.name, g.file, g.serviceInterface, g.sMiddleware, "")
 	err = mdwG.Generate()
 	if err != nil {
 		return err
@@ -270,27 +270,34 @@ func (g *GenerateService) removeBadMethods() {
 
 type generateServiceMiddleware struct {
 	BaseGenerator
-	name              string
-	interfaceName     string
-	generateFirstTime bool
-	destPath          string
-	filePath          string
-	serviceFile       *parser.File
-	file              *parser.File
-	serviceInterface  parser.Interface
-	generateDefaults  bool
+	name                     string
+	interfaceName            string
+	generateFirstTime        bool
+	destPath                 string
+	filePath                 string
+	serviceFile              *parser.File
+	file                     *parser.File
+	serviceInterface         parser.Interface
+	generateDefaults         bool
+	defaultServiceMiddleware bool
 }
 
 func newGenerateServiceMiddleware(name string, serviceFile *parser.File,
-	serviceInterface parser.Interface, generateDefaults bool) Gen {
+	serviceInterface parser.Interface, generateDefaults bool, serviceMiddleFile string) Gen {
 	gsm := &generateServiceMiddleware{
-		name:             name,
-		interfaceName:    utils.ToCamelCase(name + "Service"),
-		destPath:         fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(name)),
-		serviceInterface: serviceInterface,
-		serviceFile:      serviceFile,
+		name:                     name,
+		interfaceName:            utils.ToCamelCase(name + "Service"),
+		destPath:                 fmt.Sprintf(viper.GetString("gk_service_path_format"), utils.ToLowerSnakeCase2(name)),
+		serviceInterface:         serviceInterface,
+		serviceFile:              serviceFile,
+		defaultServiceMiddleware: true,
 	}
-	gsm.filePath = path.Join(gsm.destPath, viper.GetString("gk_service_middleware_file_name"))
+	if serviceMiddleFile == "" {
+		gsm.filePath = path.Join(gsm.destPath, viper.GetString("gk_service_middleware_file_name"))
+	} else {
+		gsm.filePath = path.Join(gsm.destPath, serviceMiddleFile)
+		gsm.defaultServiceMiddleware = false
+	}
 	gsm.generateDefaults = generateDefaults
 	gsm.srcFile = jen.NewFilePath(gsm.destPath)
 	gsm.InitPg()
@@ -323,7 +330,7 @@ func (g *generateServiceMiddleware) Generate() error {
 			}
 		}
 	}
-	if !tpFound {
+	if g.defaultServiceMiddleware && !tpFound {
 		g.code.Raw().Comment("Middleware describes a service middleware.").Line()
 		g.code.Raw().Type().Id("Middleware").Func().Params(jen.Id(g.interfaceName)).Id(g.interfaceName).Line()
 		g.code.NewLine()
