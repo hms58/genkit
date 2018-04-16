@@ -14,6 +14,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	suffixServiceMiddleware  = "ServiceMiddleware"
+	suffixEndpointMiddleware = "EndpointMiddleware"
+)
+
 // GenerateMiddleware implements Gen and is used to generate middleware.
 type GenerateMiddleware struct {
 	BaseGenerator
@@ -81,11 +86,11 @@ func (g *GenerateMiddleware) generateServiceMiddleware() (err error) {
 	}
 	middlewareStructFound := false
 	for _, v := range g.serviceGenerator.file.Structures {
-		if v.Name == g.name+"Middleware" {
+		if v.Name == g.name+suffixServiceMiddleware {
 			middlewareStructFound = true
 		}
 	}
-	mdwStrucName := utils.ToLowerFirstCamelCase(g.name) + "Middleware"
+	mdwStrucName := utils.ToLowerFirstCamelCase(g.name) + suffixServiceMiddleware
 	if !middlewareStructFound {
 		g.serviceGenerator.code.appendStruct(
 			mdwStrucName,
@@ -93,8 +98,9 @@ func (g *GenerateMiddleware) generateServiceMiddleware() (err error) {
 		)
 	}
 	mthdFound := false
+	newMthd := fmt.Sprintf("New%s%s", utils.ToCamelCase(g.name), suffixServiceMiddleware)
 	for _, v := range g.serviceGenerator.file.Methods {
-		if v.Name == utils.ToCamelCase(g.name)+"Middleware" {
+		if v.Name == newMthd {
 			mthdFound = true
 			break
 		}
@@ -103,7 +109,7 @@ func (g *GenerateMiddleware) generateServiceMiddleware() (err error) {
 		g.serviceGenerator.code.appendMultilineComment([]string{
 			fmt.Sprintf(
 				"%s returns a %s Middleware.",
-				utils.ToCamelCase(g.name)+"Middleware",
+				newMthd,
 				g.interfaceName,
 			),
 		})
@@ -121,7 +127,7 @@ func (g *GenerateMiddleware) generateServiceMiddleware() (err error) {
 		)
 		pt.NewLine()
 		g.serviceGenerator.code.appendFunction(
-			utils.ToCamelCase(g.name)+"Middleware",
+			newMthd,
 			nil,
 			[]jen.Code{},
 			[]jen.Code{},
@@ -181,14 +187,15 @@ func (g *GenerateMiddleware) generateEndpointMiddleware() (err error) {
 		return err
 	}
 	middlewareFound := false
+	newMthd := fmt.Sprintf("New%s%s", utils.ToCamelCase(g.name), suffixEndpointMiddleware)
 	for _, v := range g.file.Methods {
-		if v.Name == utils.ToCamelCase(g.name)+"Middleware" {
+		if v.Name == newMthd {
 			middlewareFound = true
 		}
 	}
 	if !middlewareFound {
 		g.code.appendMultilineComment([]string{
-			fmt.Sprintf("%s returns an endpoint middleware", utils.ToCamelCase(g.name)+"Middleware"),
+			fmt.Sprintf("%s returns an endpoint middleware", newMthd),
 		})
 		g.code.NewLine()
 		inF := NewPartialGenerator(nil)
@@ -208,7 +215,7 @@ func (g *GenerateMiddleware) generateEndpointMiddleware() (err error) {
 			jen.Return(jen.Id("next").Call(jen.Id("ctx"), jen.Id("request"))),
 		)
 		g.code.appendFunction(
-			utils.ToCamelCase(g.name)+"Middleware",
+			newMthd,
 			nil,
 			[]jen.Code{},
 			[]jen.Code{},
