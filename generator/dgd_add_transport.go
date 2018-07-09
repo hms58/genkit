@@ -667,7 +667,7 @@ func NewGenerateGRPCTransportProtoDgd(name string, serviceInterface parser.Inter
 }
 
 func (g *generateGRPCTransportProtoDgd) Generate() (err error) {
-	g.generateRequestResponseGo()
+	// g.generateRequestResponse_Go()
 	g.CreateFolderStructure(g.destPath)
 	if b, err := g.fs.Exists(g.pbFilePath); err != nil {
 		return err
@@ -717,7 +717,7 @@ func (g *generateGRPCTransportProtoDgd) Generate() (err error) {
 	}
 	g.generateRequestResponse()
 	buf := new(bytes.Buffer)
-	formatter := protofmt.NewFormatter(buf, " ")
+	formatter := protofmt.NewFormatter(buf, "    ")
 	formatter.Format(g.protoSrc)
 	err = g.fs.WriteFile(g.pbFilePath, buf.String(), true)
 	if err != nil {
@@ -831,19 +831,78 @@ func (g *generateGRPCTransportProtoDgd) generateRequestResponse() {
 			}
 		}
 		if !foundRequest {
-			g.protoSrc.Elements = append(g.protoSrc.Elements, &proto.Message{
+			reqMsg := &proto.Message{
 				Name: reqDataName,
+				Comment: &proto.Comment{
+					Lines: []string{
+						fmt.Sprintf(" %s", v.Name),
+					},
+				},
+			}
+			reqMsg.Elements = append(reqMsg.Elements, &proto.Message{
+				Name: "Data",
 			})
+
+			// 注释换行
+			reqMsg.Elements = append(reqMsg.Elements, &proto.Comment{
+				Lines: []string{
+				},
+			})
+			reqMsg.Elements = append(reqMsg.Elements, &proto.NormalField{
+				Field: &proto.Field{
+					Name: "city_code",
+					Type: "int32",
+					Sequence: 1,
+				},
+			})
+			reqMsg.Elements = append(reqMsg.Elements, &proto.NormalField{
+				Field: &proto.Field{
+					Name: "data",
+					Type: "Data",
+					Sequence: 2,
+				},
+			})
+			g.protoSrc.Elements = append(g.protoSrc.Elements, reqMsg)
+
 		}
 		if !foundReply {
-			g.protoSrc.Elements = append(g.protoSrc.Elements, &proto.Message{
+			rspMsg := &proto.Message{
 				Name: rspDataName,
+			}
+			rspMsg.Elements = append(rspMsg.Elements, &proto.Message{
+				Name: "Data",
 			})
+
+			rspMsg.Elements = append(rspMsg.Elements, &proto.NormalField{
+				Field: &proto.Field{
+					Name: "errcode",
+					Type: "int32",
+					Sequence: 1,
+				},
+			})
+			rspMsg.Elements = append(rspMsg.Elements, &proto.NormalField{
+				Field: &proto.Field{
+					Name: "errmsg",
+					Type: "string",
+					Sequence: 2,
+				},
+			})
+			rspMsg.Elements = append(rspMsg.Elements, &proto.NormalField{
+				Field: &proto.Field{
+					Name: "data",
+					Type: "Data",
+					Sequence: 3,
+				},
+			})
+			g.protoSrc.Elements = append(g.protoSrc.Elements, rspMsg)
+			// g.protoSrc.Elements = append(g.protoSrc.Elements, &proto.Message{
+			// 	Name: rspDataName,
+			// })
 		}
 	}
 }
 
-func (g *generateGRPCTransportProtoDgd) generateRequestResponseGo() (err error) {
+func (g *generateGRPCTransportProtoDgd) generateRequestResponse_Go() (err error) {
 	err = g.CreateFolderStructure(g.destPath)
 	if err != nil {
 		return err

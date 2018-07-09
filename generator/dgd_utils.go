@@ -15,8 +15,8 @@ const (
 	dgd_default_coder_var         = "defaultCoder"
 	dgd_router_map_pattern_format = "%sReqPattern"
 
-	dgd_req_data_proto_format = "%sDataReq"
-	dgd_rsp_data_proto_format = "%sDataRsp"
+	dgd_req_data_proto_format = "%sReq"
+	dgd_rsp_data_proto_format = "%sRsp"
 	dgd_req_struct_format     = "%sReq"
 	dgd_rsp_struct_format     = "%sRsp"
 )
