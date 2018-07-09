@@ -1,11 +1,11 @@
 package generator
 
 import (
+	"bytes"
 	"fmt"
 	"path"
-	"strings"
-	"bytes"
 	"strconv"
+	"strings"
 	// "log"
 
 	"github.com/Sirupsen/logrus"
@@ -560,7 +560,7 @@ func (b *generateServiceEndpointsDgd) EnsureThatWeUseQualifierIfNeeded(tp string
 		}
 		for _, v := range imp {
 			i, _ := strconv.Unquote(v.Type)
-			
+
 			if strings.HasSuffix(i, s) || v.Name == s {
 				return i
 			}
@@ -603,7 +603,7 @@ func (g *generateServiceEndpointsDgd) generateEndpointsClientMethods() {
 		rqName := "req_pb"
 
 		for _, p := range m.Parameters {
-			
+
 			tp := p.Type
 			ts := strings.Split(tp, ".")
 			if len(ts) == 1 {
@@ -616,7 +616,7 @@ func (g *generateServiceEndpointsDgd) generateEndpointsClientMethods() {
 			pth := g.EnsureThatWeUseQualifierIfNeeded(p.Type, g.serviceImports)
 			if pth != "" {
 				s := strings.Split(p.Type, ".")
-				
+
 				if len(s[0]) > 0 && s[0][0] == '*' {
 					sp = append(sp, jen.Id(p.Name).Id("*").Qual(pth, s[1]))
 					rsp_jc = jen.Id("*").Qual(pth, s[1])
@@ -691,15 +691,15 @@ func (g *generateServiceEndpointsDgd) generateMethodEndpoint() (err error) {
 	if err != nil {
 		return err
 	}
-	pbImport, err:= utils.GetPbImportPath(g.name)
+	pbImport, err := utils.GetPbImportPath(g.name)
 	if err != nil {
 		return err
 	}
-	basepbImport, err:= utils.GetProjectCommImportPath("pb")
-	if err != nil {
-		return err
-	}
-	commImport, err:= utils.GetCommImportPath(g.name)
+	// basepbImport, err := utils.GetProjectCommImportPath("pb")
+	// if err != nil {
+	// 	return err
+	// }
+	commImport, err := utils.GetCommImportPath(g.name)
 	if err != nil {
 		return err
 	}
@@ -735,7 +735,7 @@ func (g *generateServiceEndpointsDgd) generateMethodEndpoint() (err error) {
 
 		makeMethdExists := false
 		failedFound := false
-		
+
 		for _, v := range g.file.Methods {
 			if v.Name == "Make"+m.Name+"Endpoint" {
 				makeMethdExists = true
@@ -757,24 +757,29 @@ func (g *generateServiceEndpointsDgd) generateMethodEndpoint() (err error) {
 				nil,
 				[]jen.Code{
 					jen.Id("errcode").Int32(),
-					jen.Id("response").Interface(),
+					jen.Id("errmsg").Id("*").String(),
 				},
 				[]jen.Code{
 					jen.Int32(),
 				},
 				"",
-				jen.Id("rsp_base").Op(":=").Id("response").Dot("").Call(
-					jen.Id("*").Qual(basepbImport, "RspBase"),
-				),
+				// jen.List(jen.Id("rsp_base"), jen.Id("ok")).Op(":=").Id("response").Dot("").Call(
+				// 	jen.Id("*").Qual(basepbImport, "RspBase"),
+				// ),
+				// jen.If(
+				// 	jen.Id("ok").Op("&&").Id("errcode").Op("!=0"),
+				// ).Block(
+				// 	jen.Id("rsp_base").Dot("Errcode").Op("=").Id("errcode"),
+				// 	jen.If(
+				// 		jen.Id("rsp_base").Dot("Errmsg").Op("==\"\""),
+				// 	).Block(
+				// 		jen.Id("rsp_base").Dot("Errmsg").Op("=").Qual(commImport, "ErrCode2ErrMsg").Call(jen.Id("errcode")),
+				// 	),
+				// ),
 				jen.If(
-						jen.List(jen.Id("errcode")).Op("!=0"),
-					).Block(
-						jen.Id("rsp_base").Dot("Errcode").Op("=").Id("errcode"),
-						jen.If(
-							jen.Id("rsp_base").Dot("Errmsg").Op("==\"\""),
-						).Block(
-							jen.Id("rsp_base").Dot("Errmsg").Op("=").Qual(commImport, "ErrCode2ErrMsg").Call(jen.Id("errcode")),
-					),
+					jen.Id("errcode").Op("!=0").Op("&&").Id("*").Id("errmsg").Op("==\"\""),
+				).Block(
+					jen.Id("*").Id("errmsg").Op("=").Qual(commImport, "ErrCode2ErrMsg").Call(jen.Id("errcode")),
 				),
 				jen.Return(
 					jen.Id("errcode"),
@@ -785,7 +790,7 @@ func (g *generateServiceEndpointsDgd) generateMethodEndpoint() (err error) {
 		}
 
 		if !makeMethdExists {
-		
+
 			reqStructName := fmt.Sprintf(dgd_req_struct_format, m.Name)
 			rspStructName := fmt.Sprintf(dgd_rsp_struct_format, m.Name)
 
@@ -797,7 +802,7 @@ func (g *generateServiceEndpointsDgd) generateMethodEndpoint() (err error) {
 				jen.Id("rsp_pb").Op(":=").Qual(pbImport, rspStructName).Block(),
 				jen.Id("errcode").Op(":=").Id("s").Dot(m.Name).Call(mCallParam...),
 				jen.Id(""),
-				jen.Id("ErrorWrapper").Call(jen.Id("errcode"), jen.Id("&rsp_pb")),
+				jen.Id("rsp_pb").Dot("Errcode").Op("=").Id("ErrorWrapper").Call(jen.Id("errcode"), jen.Id("&rsp_pb").Dot("Errmsg")),
 				jen.Return(jen.Id("rsp_pb"), jen.Nil()),
 			}
 			if len(mCallParam) == 1 {
@@ -2343,15 +2348,15 @@ func (g *generateHandlerFileDdg) generateServiceMethods() {
 type generateCommUtilsDdg struct {
 	BaseGenerator
 	// pg                *PartialGenerator
-	name              string
-	errcodeFilePath   string
-	errmsgFilePath    string
-	file              *parser.File
-	errmsgFile        *parser.File
-	destPath          string
+	name                     string
+	errcodeFilePath          string
+	errmsgFilePath           string
+	file                     *parser.File
+	errmsgFile               *parser.File
+	destPath                 string
 	errcodeGenerateFirstTime bool
-	errmsgenerateFirstTime bool
-	isProjComm          bool
+	errmsgenerateFirstTime   bool
+	isProjComm               bool
 }
 
 func newGenerateCommUtilsDdg(name string, isProjComm bool) Gen {
@@ -2367,18 +2372,18 @@ func newGenerateCommUtilsDdg(name string, isProjComm bool) Gen {
 		destPath = fmt.Sprintf(viper.GetString("gk_gdg_comm_path_format"), utils.ToLowerSnakeCase2(name))
 	}
 	ghs := &generateCommUtilsDdg{
-		name:              name,
-		destPath:          destPath,
+		name:                     name,
+		destPath:                 destPath,
 		errcodeGenerateFirstTime: false,
-		errmsgenerateFirstTime: false,
-		isProjComm: isProjComm,
+		errmsgenerateFirstTime:   false,
+		isProjComm:               isProjComm,
 	}
 
 	ghs.errcodeFilePath = path.Join(ghs.destPath, "errcode.go")
 	ghs.errmsgFilePath = path.Join(ghs.destPath, "errmsg.go")
 
 	ghs.srcFile = jen.NewFilePath(ghs.destPath)
-	
+
 	ghs.fs = fs.Get()
 	return ghs
 }
@@ -2388,12 +2393,12 @@ func (g *generateCommUtilsDdg) Generate() (err error) {
 	if err != nil {
 		return err
 	}
-	
+
 	err = g.generateErrcode()
 	if err != nil {
 		return err
 	}
-	
+
 	err = g.generateErrmsg()
 	if err != nil {
 		return err
@@ -2554,9 +2559,8 @@ func (g *generateCommUtilsDdg) generateErrmsgInit() (err error) {
 	initFuncName := "init"
 	errCode2ErrMsgFuncName := "ErrCode2ErrMsg"
 
-
 	hasPairsStruct := false
-	
+
 	hasDefCodeMsgVar := false
 	hasCodeToMsgMapVar := false
 	hasCodeRepeatCntVar := false
@@ -2631,24 +2635,23 @@ func (g *generateCommUtilsDdg) generateErrmsgInit() (err error) {
 				jen.List(jen.Id("_"), jen.Id("v")).Op(":=").Range().Id(defCodeMsgVarName),
 			).Block(
 				jen.If(v_code2.Op("<0").Op("||").Id("v").Dot("code").Op(">=").Id("KErrCodeMax")).Block(
-					jen.Id("log").Dot("Fatalf").Call(jen.Lit("invalid err_code %d"),jen.Id("v").Dot("code")),
+					jen.Id("log").Dot("Fatalf").Call(jen.Lit("invalid err_code %d"), jen.Id("v").Dot("code")),
 				),
 				jen.Id(codeToMsgMapVarName).Index(v_code).Op("=").Id("v").Dot("msg"),
 				jen.Id(codeRepeatCntVarName).Index(v_code).Op("=").Id(codeRepeatCntVarName).Index(v_code).Op("+1"),
 				jen.If(
 					jen.Id(codeRepeatCntVarName).Index(v_code).Op(">1"),
-					).Block(
-						jen.Id("log").Dot("Fatalf").Call(jen.Lit("repeat err_code %d"), v_code),
+				).Block(
+					jen.Id("log").Dot("Fatalf").Call(jen.Lit("repeat err_code %d"), v_code),
 				),
 			),
-
 		)
 		g.code.NewLine()
 		g.code.NewLine()
 	}
 
 	if !hasErrCode2ErrMsgFunc {
-		systemErrTip  := "system error"
+		systemErrTip := "system error"
 		unKnownErrTip := "unknown error"
 
 		g.code.appendFunction(
