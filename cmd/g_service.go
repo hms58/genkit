@@ -30,14 +30,27 @@ var initserviceCmd = &cobra.Command{
 			emw = viper.GetBool("g_s_endpoint_mdw")
 			smw = viper.GetBool("g_s_svc_mdw")
 		}
-		g := generator.NewGenerateService(
-			args[0],
-			viper.GetString("g_s_transport"),
-			smw,
-			viper.GetBool("g_s_gorilla"),
-			emw,
-			methods,
-		)
+		var g generator.Gen
+		if viper.GetBool("g_s_dgd") {
+			g = generator.NewGenerateServiceDdg(
+				args[0],
+				viper.GetString("g_s_transport"),
+				smw,
+				viper.GetBool("g_s_gorilla"),
+				emw,
+				methods,
+			)
+		} else {
+			g = generator.NewGenerateServiceDdg(
+				args[0],
+				viper.GetString("g_s_transport"),
+				smw,
+				viper.GetBool("g_s_gorilla"),
+				emw,
+				methods,
+			)
+		}
+
 		if err := g.Generate(); err != nil {
 			logrus.Error(err)
 		}
@@ -47,14 +60,16 @@ var initserviceCmd = &cobra.Command{
 func init() {
 	generateCmd.AddCommand(initserviceCmd)
 	initserviceCmd.Flags().StringP("transport", "t", "http", "The transport you want your service to be initiated with")
-	initserviceCmd.Flags().BoolP("dmw","w", false, "Generate default middleware for service and endpoint")
+	initserviceCmd.Flags().BoolP("dmw", "w", false, "Generate default middleware for service and endpoint")
 	initserviceCmd.Flags().Bool("gorilla", false, "Generate http using gorilla mux")
 	initserviceCmd.Flags().StringArrayVarP(&methods, "methods", "m", []string{}, "Specify methods to be generated")
 	initserviceCmd.Flags().Bool("svc-mdw", false, "If set a default Logging and Instrumental middleware will be created and attached to the service")
 	initserviceCmd.Flags().Bool("endpoint-mdw", false, "If set a default Logging and Tracking middleware will be created and attached to the endpoint")
+	initserviceCmd.Flags().Bool("dgd", false, "use dgd template rpc")
 	viper.BindPFlag("g_s_transport", initserviceCmd.Flags().Lookup("transport"))
 	viper.BindPFlag("g_s_dmw", initserviceCmd.Flags().Lookup("dmw"))
 	viper.BindPFlag("g_s_gorilla", initserviceCmd.Flags().Lookup("gorilla"))
 	viper.BindPFlag("g_s_svc_mdw", initserviceCmd.Flags().Lookup("svc-mdw"))
 	viper.BindPFlag("g_s_endpoint_mdw", initserviceCmd.Flags().Lookup("endpoint-mdw"))
+	viper.BindPFlag("g_s_dgd", initserviceCmd.Flags().Lookup("dgd"))
 }

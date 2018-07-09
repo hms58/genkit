@@ -203,6 +203,10 @@ func GetGOPATH() string {
 }
 
 func defaultGOPATH() string {
+	if home := os.Getenv("GOPATH"); home != "" {
+		return home
+	}
+
 	env := "HOME"
 	if runtime.GOOS == "windows" {
 		env = "USERPROFILE"
